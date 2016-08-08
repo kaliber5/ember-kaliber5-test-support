@@ -10,7 +10,7 @@ const staticMapping = {
 
 /**
  * Simple yadda dictionary converter for mapping names like first, second etc. to numeric indices
- * Returned indices are beginning with 0, so mappig is like this:
+ * Returned indices are beginning with 0, so mapping is like this:
  * first -> 0
  * second -> 1
  * 5th -> 4

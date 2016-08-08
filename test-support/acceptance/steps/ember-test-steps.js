@@ -9,6 +9,7 @@ import getUrl from '../../helpers/get-url';
 import selectElement from '../../helpers/select-element';
 import selectInput from '../../helpers/select-input';
 import csvConverter from '../../yadda/converters/csv';
+import csvHashConverter from '../../yadda/converters/csv-hash';
 import indexMappingConverter from '../../yadda/converters/index-mapping';
 import { pluralize } from 'ember-inflector';
 
@@ -19,6 +20,7 @@ export const dictionary = new yadda.Dictionary()
   // This might be a bug in ember-cli-yadda actually rather than yadda itself
   .define('table', /([^\u0000]*)/, yadda.converters.table)
   .define('csv', /([^\u0000]*)/, csvConverter)
+  .define('csvHash', /([^\u0000]*)/, csvHashConverter)
   .define('index', /(\w+)/, indexMappingConverter)
   .define('number', /(\d+)/, yadda.converters.integer)
   .define('float', /(\d+)/, yadda.converters.float)
