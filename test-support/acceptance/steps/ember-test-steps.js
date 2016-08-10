@@ -11,7 +11,7 @@ import selectInput from '../../helpers/select-input';
 import csvConverter from '../../yadda/converters/csv';
 import csvHashConverter from '../../yadda/converters/csv-hash';
 import indexMappingConverter from '../../yadda/converters/index-mapping';
-import { pluralize } from 'ember-inflector';
+import { pluralize, singularize } from 'ember-inflector';
 
 const { warn } = Ember;
 
@@ -102,6 +102,14 @@ export function steps(steps) {
         expect(find('.modal-dialog').length).to.equal(not === 'not' ? 0 : 1);
         next();
       }, 500);
+    })
+
+    // mirage stuff
+    .given('there (?:are|is) ?([0-9]*) ([a-z\-]+)(?: models)? in my database', function(count, model) {
+      count = parseInt(count) || 10;
+      model = singularize(model);
+      this.ctx.db = this.ctx.db || {};
+      this.ctx.db[model] = server.createList(model, count);
     })
     ;
 }
