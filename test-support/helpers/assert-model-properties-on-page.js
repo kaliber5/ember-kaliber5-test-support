@@ -3,7 +3,15 @@ import Ember from 'ember';
 import { expect } from 'chai';
 import { pluralize } from 'ember-inflector';
 
-const { isArray, get } = Ember;
+const { get, typeOf } = Ember;
+
+function isInt(n) {
+  return parseInt(n) === n;
+}
+
+function isFloat(f) {
+  return typeOf(f) === 'number' && !isInt(f);
+}
 
 /**
  * Given a modelName and an array of properties, check that all given properties are on the given page object for every model
@@ -23,10 +31,12 @@ export default function assertModelPropertiesOnPage(modelName, models, propertie
     let [ collectionItem ] = pageCollection().filterBy('modelId', id);
     expect(collectionItem, `No collection item found for ${modelName} with ID ${id}`).to.exist;
     properties.forEach((property) => {
-      if (isArray(property)) {
-        property = property[0];
+      let modelValue = get(modelInstance, property);
+      if (isFloat(modelValue)) {
+        expect(get(collectionItem, property.replace('.', '-').camelize()), `${property} does not match expected value`).to.be.closeTo(modelValue, 0.000001);
+      } else {
+        expect(get(collectionItem, property.replace('.', '-').camelize()), `${property} does not match expected value`).to.equal(modelValue);
       }
-      expect(get(collectionItem, property.replace('.', '-').camelize())).to.equal(get(modelInstance, property));
     });
   });
 }
