@@ -19,13 +19,12 @@ function isFloat(f) {
  * @param modelName
  * @param models
  * @param properties
- * @param pageObject
+ * @param pageCollection
  * @public
  */
-export default function assertModelPropertiesOnPage(modelName, models, properties, pageObject) {
+export default function assertModelPropertiesOnPage(modelName, models, properties, pageCollection) {
   expect(models).to.be.an('array');
   expect(properties).to.be.an('array');
-  let pageCollection = pageObject[pluralize(modelName.camelize())];
   models.forEach((modelInstance) => {
     let id = get(modelInstance, 'id');
     let [ collectionItem ] = pageCollection().filterBy('modelId', id);
