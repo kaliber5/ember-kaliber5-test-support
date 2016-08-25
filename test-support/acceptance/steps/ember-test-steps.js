@@ -111,6 +111,17 @@ export function steps(steps) {
       this.ctx.db = this.ctx.db || {};
       this.ctx.db[model] = server.createList(model, count);
     })
+    .given('there (?:are|is) ?([0-9]*) ([a-z\-]+)(?: models)? in my database with the following properties:\n$csv', function(count, model, csv) {
+      let properties = csv
+        .reduce((prev, [key, value]) => {
+          prev[key] = value;
+          return prev;
+        }, {});
+      count = parseInt(count) || 10;
+      model = singularize(model);
+      this.ctx.db = this.ctx.db || {};
+      this.ctx.db[model] = server.createList(model, count, properties);
+    })
     ;
 }
 
