@@ -98,10 +98,10 @@ export function steps(steps) {
     })
     .then('I should (not|) ?see a modal dialog', function(not, next) {
       // wait for fade effect
-      window.setTimeout(() => {
-        expect(find('.modal-dialog').length).to.equal(not === 'not' ? 0 : 1);
+      andThen(() => {
+        expect(find('.modal.in .modal-dialog').length).to.equal(not === 'not' ? 0 : 1);
         next();
-      }, 500);
+      });
     })
 
     // mirage stuff
