@@ -46,7 +46,9 @@ export function steps(steps) {
     })
     .then('I should (?:|still )be on the "?(.*?)"?(?:| page)$', function(page) {
       let url = getUrl(page);
-      let escapedUrl = url.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+      let escapedUrl = url
+        .replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&')
+        .replace(/:[^\/]+/g, '[^\/]+');
       expect(currentURL()).to.match(new RegExp(`^${escapedUrl}(?:\\?.*)?`), `current page should be ${url}, but is ${currentURL()}`);
       this.ctx.pageObject = getPageObject(page);
     })
