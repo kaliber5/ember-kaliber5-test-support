@@ -80,10 +80,15 @@ export function steps(steps) {
       let el = find(selectElement(selector));
       expect(el.length).to.equal(1, `No ${selector} element found`);
     })
-    .then('I should see (?:an?|the) "?([\\w -]+?)"? (form|input|button)$', function(selector, element) {
+    .then('I should see (?:an?|the) "?([\\w -]+?)"? (input|button)$', function(selector, element) {
       let longSelector = `${selector}-${element}`; // allows matching of e.g. form[data-test-selector=user-form] when selector="user form" and element=form
       let el = find(`${element}${selectElement(selector)}, ${element}${selectElement(longSelector)}`);
       expect(el.length).to.equal(1, `No ${selector} ${element} found`);
+    })
+    .then('I should see (?:an?|the) "?([\\w -]+?)"? form$', function(selector) {
+      let longSelector = `${selector}-form`; // allows matching of e.g. form[data-test-selector=user-form] when selector="user form" and element=form
+      let el = find(`form${selectElement(selector)}, form${selectElement(longSelector)}, ${selectElement(selector)} form, ${selectElement(longSelector)} form`);
+      expect(el.length).to.equal(1, `No ${selector} form found`);
     })
     .then('I should not see an? "?([\\w -]*?)"? (?:button|item|element|link)$', function(selector) {
       let el = find(selectElement(selector));
