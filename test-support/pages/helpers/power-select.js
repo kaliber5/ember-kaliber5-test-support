@@ -1,5 +1,5 @@
 import { buildSelector, getContext, findElement } from 'ember-cli-page-object';
-import testSelector from '../../helpers/ember-test-selectors';
+import testSelector from 'ember-test-selectors';
 import powerSelectChoose from '../../helpers/power-select-choose';
 import waitHelper from 'ember-test-helpers/wait';
 

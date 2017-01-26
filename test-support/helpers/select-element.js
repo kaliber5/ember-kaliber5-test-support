@@ -1,4 +1,4 @@
-import testSelector from './ember-test-selectors';
+import testSelector from 'ember-test-selectors';
 
 /**
  * Shorthand version of testselector, using the convention of data-test-selector=<value>
