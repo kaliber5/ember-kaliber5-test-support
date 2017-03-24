@@ -3,7 +3,6 @@ import testSelector from 'ember-test-selectors';
 import powerSelectChoose from '../../helpers/power-select-choose';
 import waitHelper from 'ember-test-helpers/wait';
 
-
 export function selectableChoose(selector, options = {}) {
   return {
     isDescriptor: true,
@@ -47,7 +46,7 @@ export function selectableSearch(selector, options = {}) {
       let context = getContext(this);
 
       if (context) {
-        throw new Error('selectableChoose is currently not available for integration tests!');
+        throw new Error('selectableSearch is currently not available for integration tests!');
       } else {
         wait().then(function() {
           selectSearch(buildSelector(this, selector, options), textToSearch);

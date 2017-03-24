@@ -1,6 +1,6 @@
 import Ember from 'ember';
-import wait from 'ember-test-helpers/wait';
 import { nativeMouseDown, nativeMouseUp } from './ember-power-select';
+import wait from 'ember-test-helpers/wait';
 
 const { $ } = Ember;
 
@@ -24,26 +24,27 @@ export default function powerSelectChoose(scope, valueOrSelector) {
     throw new Error(`You called "powerSelectChoose('${scope}', '${valueOrSelector}')" but no select was found using selector "${scope}"`);
   }
 
-  let contentId = `${$trigger.attr('aria-controls')}`;
+  let contentId = $trigger.attr('aria-owns') || $trigger.attr('aria-controls');
   let $content = $(`#${contentId}`);
   // If the dropdown is closed, open it
-  if ($content.length === 0) {
+  if ($content.length === 0  || $content.hasClass('ember-basic-dropdown-content-placeholder')) {
     nativeMouseDown($trigger.get(0));
   }
 
-      let potentialTargets = $(`#${contentId} .ember-power-select-option:contains("${valueOrSelector}")`).toArray();
-      let target;
-      if (potentialTargets.length === 0) {
-        // If treating the value as text doesn't gave use any result, let's try if it's a css selector
-        potentialTargets = $(`#${contentId} ${valueOrSelector}`).toArray();
-      }
-      if (potentialTargets.length > 1) {
-        target = potentialTargets.filter((t) => t.textContent.trim() === valueOrSelector)[0] || potentialTargets[0];
-      } else {
-        target = potentialTargets[0];
-      }
-      if (!target) {
-        throw new Error(`You called "selectChoose('${scope}', '${valueOrSelector}')" but "${valueOrSelector}" didn't match any option`);
-      }
-      nativeMouseUp(target);
+  let potentialTargets = $(`#${contentId} .ember-power-select-option:contains("${valueOrSelector}")`).toArray();
+  let target;
+  if (potentialTargets.length === 0) {
+    // If treating the value as text doesn't gave use any result, let's try if it's a css selector
+    potentialTargets = $(`#${contentId} ${valueOrSelector}`).toArray();
+  }
+  if (potentialTargets.length > 1) {
+    target = potentialTargets.filter((t) => t.textContent.trim() === valueOrSelector)[0] || potentialTargets[0];
+  } else {
+    target = potentialTargets[0];
+  }
+  if (!target) {
+    throw new Error(`You called "selectChoose('${scope}', '${valueOrSelector}')" but "${valueOrSelector}" didn't match any option`);
+  }
+  nativeMouseUp(target);
+  return wait();
 }
