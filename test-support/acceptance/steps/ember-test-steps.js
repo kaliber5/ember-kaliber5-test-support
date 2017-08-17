@@ -23,7 +23,8 @@ export const dictionary = new yadda.Dictionary()
   .define('csvHash', /([^\u0000]*)/, csvHashConverter)
   .define('index', /(\w+)/, indexMappingConverter)
   .define('number', /(\d+)/, yadda.converters.integer)
-  .define('float', /(\d+)/, yadda.converters.float)
+  .define('integer', /(\d+)/, yadda.converters.integer)
+  .define('float', /([-+]?[0-9]*\.?[0-9]+)/, yadda.converters.float)
   .define('date', /(\d+)/, yadda.converters.date)
   ;
 
