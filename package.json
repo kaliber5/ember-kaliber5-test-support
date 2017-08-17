@@ -1,6 +1,6 @@
 {
   "name": "ember-kaliber5-test-support",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "The default blueprint for ember-cli addons.",
   "directories": {
     "doc": "doc",
