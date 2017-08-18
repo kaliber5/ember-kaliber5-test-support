@@ -2,6 +2,7 @@ import { buildSelector, getContext, findElement } from 'ember-cli-page-object';
 import testSelector from 'ember-test-selectors';
 import powerSelectChoose from '../../helpers/power-select-choose';
 import waitHelper from 'ember-test-helpers/wait';
+import RSVP from 'rsvp';
 
 export function selectableChoose(selector, options = {}) {
   return {
@@ -10,16 +11,17 @@ export function selectableChoose(selector, options = {}) {
     value(textToSelect) {
 
       let context = getContext(this);
+      let rootSelector = buildSelector(this, selector, options);
 
       if (context) {
         waitHelper()
-          .then(() => powerSelectChoose(buildSelector(this, selector, options), textToSelect))
-          .catch(() => powerSelectChoose(buildSelector(this, selector, options), testSelector('select-option', textToSelect)))
+          .then(() => powerSelectChoose(rootSelector, textToSelect))
+          .catch(() => powerSelectChoose(rootSelector, testSelector('select-option', textToSelect)))
         ;
       } else {
-        wait()
-          .then(() => selectChoose(buildSelector(this, selector, options), textToSelect))
-          .catch(() => selectChoose(buildSelector(this, selector, options), testSelector('select-option', textToSelect)))
+        RSVP.resolve()
+          .then(() => powerSelectChoose(rootSelector, textToSelect))
+          .catch(() => powerSelectChoose(rootSelector, testSelector('select-option', textToSelect)))
         ;
       }
       return this;
