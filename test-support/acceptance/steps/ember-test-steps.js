@@ -130,6 +130,16 @@ export function steps(steps) {
       this.ctx.db = this.ctx.db || {};
       this.ctx.db[model] = server.createList(model, count, properties);
     })
+    .given('there are the following ([a-z-]+)(?: models)? in my database:\n$csvHash', function(model, csv) {
+      let models = [];
+      model = singularize(model);
+
+      csv.forEach((item) => {
+        models.push(server.create(model, item));
+      });
+      this.ctx.db = this.ctx.db || {};
+      this.ctx.db[model] = models;
+    })
     ;
 }
 
