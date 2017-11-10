@@ -16,11 +16,14 @@ export default function yaddaCsvHashConverter(value, next) {
         if (cell.match(/^\[.*\]$/) || cell.match(/^\{.*\}$/)) {
           return JSON.parse(cell);
         }
+        if (cell === '') return undefined
         return cell;
       });
     let hash = {};
     keys.forEach((key, index) => {
-      hash[key] = values[index];
+      if (values[index] !== undefined) {
+        hash[key] = values[index];
+      }
     });
     return hash;
   });
