@@ -1,9 +1,8 @@
 /* jshint expr:true */
-import Ember from 'ember';
-import { expect } from 'chai';
-import { pluralize } from 'ember-inflector';
+import { get } from '@ember/object';
 
-const { get, typeOf } = Ember;
+import { typeOf } from '@ember/utils';
+import { expect } from 'chai';
 
 function isInt(n) {
   return parseInt(n) === n;

@@ -1,8 +1,7 @@
-/* jshint expr:true */
-
+import { warn } from '@ember/debug';
+import { camelize } from '@ember/string';
 import yadda from '../../helpers/yadda';
 import { expect } from 'chai';
-import Ember from 'ember';
 import visitPage from '../../helpers/visit-page';
 import getPageObject from '../../helpers/get-page-object';
 import getUrl from '../../helpers/get-url';
@@ -11,9 +10,9 @@ import selectInput from '../../helpers/select-input';
 import csvConverter from '../../yadda/converters/csv';
 import csvHashConverter from '../../yadda/converters/csv-hash';
 import indexMappingConverter from '../../yadda/converters/index-mapping';
-import { pluralize, singularize } from 'ember-inflector';
-
-const { warn } = Ember;
+import { singularize } from 'ember-inflector';
+import wait from 'ember-test-helpers/wait';
+import { click, currentURL } from 'ember-native-dom-helpers';
 
 export const dictionary = new yadda.Dictionary()
   // this does unfortunately not work as expected, assertion exceptions are cacthed and never show up as errors in the test report
@@ -35,21 +34,19 @@ export const dictionary = new yadda.Dictionary()
  */
 export function steps(steps) {
   return steps
-    .given('I am on the "?(.*?)"?(?:| page)$', function(page, next) {
-      visitPage(page);
+    .given('I am on the "?(.*?)"?(?:| page)$', async function(page) {
+      await visitPage(page);
       this.ctx.pageObject = getPageObject(page);
-      andThen(() => next());
     })
-    .when('I go to the "?(.*?)"?(?:| page)$', function(page, next) {
-      visitPage(page);
+    .when('I go to the "?(.*?)"?(?:| page)$', async function(page) {
+      await visitPage(page);
       this.ctx.pageObject = getPageObject(page);
-      andThen(() => next());
     })
     .then('I should (?:|still )be on the "?(.*?)"?(?:| page)$', function(page) {
       let url = getUrl(page);
       let escapedUrl = url
-        .replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&')
-        .replace(/:[^\/]+/g, '[^\/]+');
+        .replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')
+        .replace(/:[^/]+/g, '[^/]+');
       expect(currentURL()).to.match(new RegExp(`^${escapedUrl}(?:\\?.*)?`), `current page should be ${url}, but is ${currentURL()}`);
       this.ctx.pageObject = getPageObject(page);
     })
@@ -66,16 +63,15 @@ export function steps(steps) {
       let el = find(selectElement(`${messageType}-message`));
       expect(el.length).to.equal(1, `No ${messageType} message found`);
     })
-    .when('I (?:click|press) (?:on )?(?:the|an?) "?([\\w -]+?)"?(?:| button| item| element| link| checkbox)$', function(selector, next) {
+    .when('I (?:click|press) (?:on )?(?:the|an?) "?([\\w -]+?)"?(?:| button| item| element| link| checkbox)$', async function(selector) {
       let page = this.ctx.pageObject;
-      let pageAction = selector.camelize();
+      let pageAction = camelize(selector);
       if (page && page[pageAction]) {
-        page[pageAction]();
+        await page[pageAction]();
       } else {
         warn(`Accessing page elements without a page object is deprecated.`, false, { id: 'ember-kaliber5-test-support.pageObject' });
-        click(selectElement(selector));
+        await click(selectElement(selector));
       }
-      andThen(() => next());
     })
     .then('I should see (?:an?|the) "?([\\w -]*?)"? (?:item|element|link)$', function(selector) {
       let el = find(selectElement(selector));
@@ -104,22 +100,20 @@ export function steps(steps) {
       let el = find(`.has-error ${selectInput(selector)}`);
       expect(el.length).to.equal(1, `No form error on ${selector} element found`);
     })
-    .then('I should (not|) ?see a modal dialog', function(not, next) {
+    .then('I should (not|) ?see a modal dialog', async function(not) {
       // wait for fade effect
-      andThen(() => {
-        expect(find('.modal.in .modal-dialog').length).to.equal(not === 'not' ? 0 : 1);
-        next();
-      });
+      await wait();
+      expect(find('.modal.in .modal-dialog').length).to.equal(not === 'not' ? 0 : 1);
     })
 
     // mirage stuff
-    .given('there (?:are|is) ?([0-9]*) ([a-z\-]+)(?: models)? in my database', function(count, model) {
+    .given('there (?:are|is) ?([0-9]*) ([a-z-]+)(?: models)? in my database', function(count, model) {
       count = parseInt(count) || 10;
       model = singularize(model);
       this.ctx.db = this.ctx.db || {};
       this.ctx.db[model] = server.createList(model, count);
     })
-    .given('there (?:are|is) ?([0-9]*) ([a-z\-]+)(?: models)? in my database with the following properties:\n$csv', function(count, model, csv) {
+    .given('there (?:are|is) ?([0-9]*) ([a-z-]+)(?: models)? in my database with the following properties:\n$csv', function(count, model, csv) {
       let properties = csv
         .reduce((prev, [key, value]) => {
           prev[key] = value;

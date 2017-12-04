@@ -1,4 +1,4 @@
-import Ember from 'ember';
+import { scheduleOnce } from '@ember/runloop';
 
 /**
  * Function for use in component integration tests to wait for a promise to resolve and the following "render"
@@ -11,6 +11,6 @@ import Ember from 'ember';
  */
 export default function afterRender(promise, fn) {
   return promise.then(function() {
-    Ember.run.scheduleOnce('afterRender', this, fn, ...arguments);
+    scheduleOnce('afterRender', this, fn, ...arguments);
   });
 }

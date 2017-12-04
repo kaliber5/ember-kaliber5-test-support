@@ -1,8 +1,6 @@
-import Ember from 'ember';
+import $ from 'jquery';
 import { nativeMouseDown, nativeMouseUp } from './ember-power-select';
 import wait from 'ember-test-helpers/wait';
-
-const { $ } = Ember;
 
 /**
  * Add a helper function for ember-power-select that works similar to `selectChoose` (see http://www.ember-power-select.com/docs/test-helpers)

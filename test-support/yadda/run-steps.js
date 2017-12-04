@@ -1,4 +1,4 @@
-import Ember from 'ember';
+import { Promise as EmberPromise } from 'rsvp';
 import yadda from '../helpers/yadda';
 
 /**
@@ -12,7 +12,7 @@ import yadda from '../helpers/yadda';
  * @public
  */
 export default function(steps, library) {
-  return new Ember.RSVP.Promise(function(resolve) {
+  return new EmberPromise(function(resolve) {
     yadda.Yadda(library, this)
       .yadda(steps, { ctx: {} }, resolve);
   });

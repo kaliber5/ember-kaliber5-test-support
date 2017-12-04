@@ -1,8 +1,7 @@
-import Ember from 'ember';
+import { warn } from '@ember/debug';
 import getPageObject from './get-page-object';
 import getUrl from './get-url';
-
-const { warn } = Ember;
+import { visit } from 'ember-native-dom-helpers';
 
 /**
  * Visit the given page. Fetches the URL from the page object if available

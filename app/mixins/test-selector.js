@@ -1,13 +1,14 @@
-import Ember from 'ember';
+import Mixin from '@ember/object/mixin';
+import { computed } from '@ember/object';
+import { deprecate } from '@ember/application/deprecations';
 import ENV from '../config/environment';
 
-const { computed, deprecate } = Ember;
 const { getPrototypeOf } = Object;
 
 let TestSelectorMixin;
 
 if (ENV.environment !== 'production') {
-  TestSelectorMixin = Ember.Mixin.create({
+  TestSelectorMixin = Mixin.create({
     attributeBindings: 'data-test-selector',
 
     init() {
@@ -20,7 +21,7 @@ if (ENV.environment !== 'production') {
     })
   });
 } else {
-  TestSelectorMixin = Ember.Mixin.create();
+  TestSelectorMixin = Mixin.create();
 }
 
 export default TestSelectorMixin;

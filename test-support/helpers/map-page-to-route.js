@@ -6,6 +6,8 @@
  * @returns {*}
  * @public
  */
+import { camelize } from '@ember/string';
+
 export default function mapPageToRoute(page) {
-  return page.split(' ').map(Ember.String.camelize).join('/');
+  return page.split(' ').map(camelize).join('/');
 }
