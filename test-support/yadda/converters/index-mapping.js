@@ -26,8 +26,8 @@ export default function yaddaIndexMappingConverter(value, next) {
   // map 4th -> 4 etc.
   let matches = value.match(/(\d)+th/);
   if (matches) {
-    next(null, matches[1] - 1);
+    return next(null, matches[1] - 1);
   }
 
-  next(null, parseInt(value));
+  return next(null, parseInt(value));
 }
