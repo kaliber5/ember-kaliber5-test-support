@@ -47,7 +47,13 @@ export function steps(steps) {
       let escapedUrl = url
         .replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')
         .replace(/:[^/]+/g, '[^/]+');
-      expect(currentURL()).to.match(new RegExp(`^${escapedUrl}(?:\\?.*)?`), `current page should be ${url}, but is ${currentURL()}`);
+      let current
+      if (this.application) {
+        current = this.application.__container__.lookup('router:main').get('currentURL');
+      } else {
+        current = currentURL();
+      }
+      expect(current).to.match(new RegExp(`^${escapedUrl}(?:\\?.*)?$`), `current page should be ${url}, but is ${current}`);
       this.ctx.pageObject = getPageObject(page);
     })
     .given('there is an? $selector (?:item|element|link)$', function(selector) {
