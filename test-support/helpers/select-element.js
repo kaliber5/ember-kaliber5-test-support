@@ -1,5 +1,3 @@
-import testSelector from 'ember-test-selectors';
-
 /**
  * Shorthand version of testselector, using the convention of data-test-selector=<value>
  *
@@ -8,5 +6,5 @@ import testSelector from 'ember-test-selectors';
  * @public
  */
 export default function selectElement(value) {
-  return testSelector('selector', value.replace(/ /g, '-'));
+  return `[data-test-selector="${value.replace(/ /g, '-')}"]`;
 }
