@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import { nativeMouseDown, nativeMouseUp } from './ember-power-select';
-import wait from 'ember-test-helpers/wait';
+import { settled } from '@ember/test-helpers';
 
 /**
  * Add a helper function for ember-power-select that works similar to `selectChoose` (see http://www.ember-power-select.com/docs/test-helpers)
@@ -11,7 +11,7 @@ import wait from 'ember-test-helpers/wait';
  * @return {Promise}
  * @private
  */
-export default function powerSelectChoose(scope, valueOrSelector) {
+export default async function powerSelectChoose(scope, valueOrSelector) {
   let $trigger = $(`${scope} .ember-power-select-trigger`);
 
   if ($trigger === undefined || $trigger.length === 0) {
@@ -44,5 +44,5 @@ export default function powerSelectChoose(scope, valueOrSelector) {
     throw new Error(`You called "selectChoose('${scope}', '${valueOrSelector}')" but "${valueOrSelector}" didn't match any option`);
   }
   nativeMouseUp(target);
-  return wait();
+  return settled();
 }

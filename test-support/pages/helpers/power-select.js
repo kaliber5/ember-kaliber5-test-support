@@ -1,36 +1,34 @@
-/* global wait, selectSearch */
+/* global selectSearch */
 
 import {
   buildSelector,
   getContext,
   findElement
 } from 'ember-cli-page-object';
-import testSelector from 'ember-test-selectors';
+import { getExecutionContext } from 'ember-cli-page-object/-private/execution_context';
 import powerSelectChoose from '../../helpers/power-select-choose';
-import waitHelper from 'ember-test-helpers/wait';
-import RSVP from 'rsvp';
+import { settled } from '@ember/test-helpers';
+import { assign } from '@ember/polyfills';
 
-export function selectableChoose(selector, options = {}) {
+export function selectableChoose(selector, userOptions = {}) {
+
   return {
     isDescriptor: true,
 
-    value(textToSelect) {
+    get(key) {
+      return function(textToSelect) {
+        let executionContext = getExecutionContext(this);
+        let options = assign({ pageObjectKey: `${key}()` }, userOptions);
 
-      let context = getContext(this);
-      let rootSelector = buildSelector(this, selector, options);
+        return executionContext.runAsync((context) => {
+          let fullSelector = buildSelector(this, selector, options);
 
-      if (context) {
-        waitHelper()
-          .then(() => powerSelectChoose(rootSelector, textToSelect))
-          .catch(() => powerSelectChoose(rootSelector, testSelector('select-option', textToSelect)))
-        ;
-      } else {
-        RSVP.resolve()
-          .then(() => powerSelectChoose(rootSelector, textToSelect))
-          .catch(() => powerSelectChoose(rootSelector, testSelector('select-option', textToSelect)))
-        ;
-      }
-      return this;
+          context.assertElementExists(fullSelector, options);
+
+          return powerSelectChoose(fullSelector, textToSelect)
+            .catch(() => powerSelectChoose(fullSelector, `[data-test-select-option=${textToSelect}`));
+        });
+      };
     }
   };
 }
@@ -56,7 +54,7 @@ export function selectableSearch(selector, options = {}) {
       if (context) {
         throw new Error('selectableSearch is currently not available for integration tests!');
       } else {
-        wait().then(function() {
+        settled().then(function() {
           selectSearch(buildSelector(this, selector, options), textToSearch);
         });
       }

@@ -1,3 +1,4 @@
+import { find, findAll, click, currentURL, settled, waitFor } from '@ember/test-helpers';
 import { warn } from '@ember/debug';
 import { camelize } from '@ember/string';
 import yadda from '../../helpers/yadda';
@@ -11,8 +12,6 @@ import csvConverter from '../../yadda/converters/csv';
 import csvHashConverter from '../../yadda/converters/csv-hash';
 import indexMappingConverter from '../../yadda/converters/index-mapping';
 import { singularize } from 'ember-inflector';
-import wait from 'ember-test-helpers/wait';
-import { click, currentURL } from 'ember-native-dom-helpers';
 
 export const dictionary = new yadda.Dictionary()
   // this does unfortunately not work as expected, assertion exceptions are cacthed and never show up as errors in the test report
@@ -47,27 +46,27 @@ export function steps(steps) {
       let escapedUrl = url
         .replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')
         .replace(/:[^/]+/g, '[^/]+');
-      let current
-      if (this.application) {
-        current = this.application.__container__.lookup('router:main').get('currentURL');
-      } else {
-        current = currentURL();
-      }
+      let current = currentURL();
       expect(current).to.match(new RegExp(`^${escapedUrl}(?:\\?.*)?$`), `current page should be ${url}, but is ${current}`);
       this.ctx.pageObject = getPageObject(page);
     })
     .given('there is an? $selector (?:item|element|link)$', function(selector) {
       let el = find(selectElement(selector));
-      expect(el.length).to.equal(1, `No ${selector} element found`);
+      expect(el, `No ${selector} element found`).to.exist;
     })
     .given('there is an? $selector (form|input|button)', function(selector, element) {
       let el = find(`${element}${selectElement(selector)}`);
-      expect(el.length).to.equal(1, `No ${selector} ${element} found`);
+      expect(el, `No ${selector} ${element} found`).to.exist;
     })
-    .then('I should see an? ([\\w -]+?) message', function(messageType) {
+    .then('I should see an? ([\\w -]+?) message', async function(messageType) {
       messageType = messageType.replace(/ /g, '-');
-      let el = find(selectElement(`${messageType}-message`));
-      expect(el.length).to.equal(1, `No ${messageType} message found`);
+      let selector = selectElement(`${messageType}-message`);
+      // wait for async flash messages
+      try {
+        await waitFor(selector);
+      } catch(e) {
+        throw new Error(`No ${messageType} message found`);
+      }
     })
     .when('I (?:click|press) (?:on )?(?:the|an?) "?([\\w -]+?)"?(?:| button| item| element| link| checkbox)$', async function(selector) {
       let page = this.ctx.pageObject;
@@ -81,35 +80,40 @@ export function steps(steps) {
     })
     .then('I should see (?:an?|the) "?([\\w -]*?)"? (?:item|element|link)$', function(selector) {
       let el = find(selectElement(selector));
-      expect(el.length).to.equal(1, `No ${selector} element found`);
+      expect(el, `No ${selector} element found`).to.exist;
     })
     .then('I should see (?:an?|the) "?([\\w -]+?)"? (input|button)$', function(selector, element) {
       let longSelector = `${selector}-${element}`; // allows matching of e.g. form[data-test-selector=user-form] when selector="user form" and element=form
       let el = find(`${element}${selectElement(selector)}, ${element}${selectElement(longSelector)}`);
-      expect(el.length).to.equal(1, `No ${selector} ${element} found`);
+      expect(el, `No ${selector} ${element} found`).to.exist;
     })
     .then('I should see (?:an?|the) "?([\\w -]+?)"? form$', function(selector) {
       let longSelector = `${selector}-form`; // allows matching of e.g. form[data-test-selector=user-form] when selector="user form" and element=form
       let el = find(`form${selectElement(selector)}, form${selectElement(longSelector)}, ${selectElement(selector)} form, ${selectElement(longSelector)} form`);
-      expect(el.length).to.equal(1, `No ${selector} form found`);
+      expect(el, `No ${selector} form found`).to.exist;
     })
     .then('I should not see an? "?([\\w -]*?)"? (?:button|item|element|link)$', function(selector) {
       let el = find(selectElement(selector));
-      expect(el.length).to.equal(0, `${selector} element found`);
+      expect(el, `${selector} element found`).to.not.exist;
     })
     .then('there is a link to the "?(.*?)"?(?:| page)$', function(page) {
       let url = getUrl(page);
-      let el = find(`a[href="${url}"]`);
+      let el = findAll(`a[href="${url}"]`);
       expect(el.length).to.be.at.least(1, `No link to ${url} found`);
     })
     .then('there should be a form error at (.*?)$', function(selector) {
       let el = find(`.has-error ${selectInput(selector)}`);
-      expect(el.length).to.equal(1, `No form error on ${selector} element found`);
+      expect(el, `No form error on ${selector} element found`).to.exist;
     })
     .then('I should (not|) ?see a modal dialog', async function(not) {
       // wait for fade effect
-      await wait();
-      expect(find('.modal.in .modal-dialog').length).to.equal(not === 'not' ? 0 : 1);
+      await settled();
+      let el = find('.modal.in .modal-dialog');
+      if (not) {
+        expect(el).to.not.exist;
+      } else {
+        expect(el).to.exist;
+      }
     })
 
     // mirage stuff
